@@ -6,7 +6,25 @@
     </div>
 
     <div class="bg-red-300 w-full mt-23">
-      <input @keyup="checkR" v-model="searchQuery" class="w-full h-24 p-2 outline-none" type="text" placeholder="search any contact" />
+      <input
+        @keyup="checkR"
+        v-model="searchQuery"
+        class="w-full h-24 p-2 outline-none"
+        type="text"
+        placeholder="search any contact"
+      />
+
+      <div class="bg-yellow-400 shadow-xl p-2">
+        <p class="font-bold">Sort Contacts (Current: {{filtermode}})</p>
+        <button
+          @click="sortBy('AZ')"
+          class="block hover:bg-white hover:font-bold hover:text-xl"
+        >Alphabetical AZ</button>
+        <button
+          @click="sortBy('ZA')"
+          class="block hover:bg-white hover:font-bold hover:text-xl"
+        >Alphabetical ZA</button>
+      </div>
 
       <div>
         <div
@@ -39,16 +57,51 @@ export default {
     return {
       allPhone: [],
       results: [], //all phone book records will be stored here
-      searchQuery:''
+      searchQuery: "",
+      filtermode: "AZ"
     };
   },
   created() {
     this.grabRecords();
   },
   methods: {
-    checkR(){
+    sortBy(a) {
+      console.log(a);
+      this.filtermode=a;
+      if (a == "AZ") {
+        //sort by A TO Z
+        //sort in alphabetical order
+        this.results.sort((a, b) => {
+          if (a.name < b.name) {
+            return -1;
+          }
+          if (a.name > b.name) {
+            return 1;
+          }
+        });
+      } else {
+          //sort in alphabetical order
+        this.results.sort((a, b) => {
+          if (a.name > b.name) {
+            return -1;
+          }
+          if (a.name > b.name) {
+            return 1;
+          }
+        });
+      }
+    },
+    checkR() {
       //check search query
-      console.log(this.searchQuery)
+
+      var term = this.searchQuery;
+
+      let b = this.allPhone.filter(
+        item => item.name.toLowerCase().indexOf(term) > -1
+      );
+
+      this.results = b;
+      this.sortBy(this.filtermode)
     },
     async grabRecords() {
       let r = await axios.get(
@@ -60,17 +113,15 @@ export default {
         this.allPhone = r.data.contacts;
         this.results = r.data.contacts;
 
-        //sort in alphabetical order
-        this.results.sort((a, b) => {
-          if (a.name < b.name) {
-            return -1;
-          }
-          if (a.name > b.name) {
-            return 1;
-          }
-        });
-
-
+        // //sort in alphabetical order
+        // this.results.sort((a, b) => {
+        //   if (a.name < b.name) {
+        //     return -1;
+        //   }
+        //   if (a.name > b.name) {
+        //     return 1;
+        //   }
+        // });
       }
     }
   }
